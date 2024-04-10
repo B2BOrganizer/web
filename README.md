@@ -30,3 +30,6 @@ The included data provider use [ra-data-simple-rest](https://github.com/marmelab
 
 You'll find an `.env` file at the project root that includes a `VITE_JSON_SERVER_URL` variable. Set it to the URL of your backend.
 
+ocker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
+
+docker push "$CI_REGISTRY_IMAGE${tag}"

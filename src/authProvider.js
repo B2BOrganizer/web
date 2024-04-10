@@ -2,7 +2,7 @@ import inMemoryJWT from 'ra-in-memory-jwt'
 
 const authProvider = {
     login: ({ username, password }) => {
-        const request = new Request('http://localhost:8080/authentications', {
+        const request = new Request(import.meta.env.VITE_SIMPLE_REST_URL + '/authentications', {
             method: 'POST',
             body: JSON.stringify({ username, password }),
             headers: new Headers({ 'Content-Type': 'application/json' })

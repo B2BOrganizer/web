@@ -18,9 +18,9 @@ COPY package-lock.json ./
 RUN npm install --silent
 
 # add app
-COPY . ./
+COPY docker ./
 
 # start app
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "build"]
 
 EXPOSE 5173

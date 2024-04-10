@@ -17,6 +17,17 @@ const httpClient = (url, options = {}) => {
     return fetchUtils.fetchJson(url, options);
 };
 
-export const dataProvider = simpleRestProvider(
-  import.meta.env.VITE_SIMPLE_REST_URL, httpClient
-);
+const baseDataProvider = simpleRestProvider(import.meta.env.VITE_SIMPLE_REST_URL, httpClient);
+
+export const dataProvider = {
+    ...baseDataProvider,
+    downloadOne: (resource, params) =>
+        httpClient(`${baseDataProvider.apiUrl}${resource}/${params.id}`).then(({ json }) => ({
+            data: json,
+        })),
+
+    banUser: (userId) => {
+        return fetch(`/api/user/${userId}/ban`, { method: 'POST' })
+            .then(response => response.json());
+    },
+}
