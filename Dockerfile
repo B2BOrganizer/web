@@ -1,5 +1,5 @@
 # pull official base image
-FROM node:21-alpine
+FROM node:14-alpine
 
 RUN apk add --update --no-cache python3
 RUN apk add --update --no-cache build-base
@@ -18,9 +18,9 @@ COPY package-lock.json ./
 RUN npm install --silent
 
 # add app
-COPY docker ./
+COPY . ./
 
 # start app
-CMD ["npm", "run", "build"]
+CMD ["npm", "run", "dev"]
 
-EXPOSE 5173
+EXPOSE 3000
