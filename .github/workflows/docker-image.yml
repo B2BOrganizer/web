@@ -6,16 +6,18 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  IMAGE_NAME: b2borganizer-web
+
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag b2borganizer-web:$(date +%s)
+      run: ocker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
+#      run: docker build . --file Dockerfile --tag b2borganizer-web:$(date +%s)
     - name: Log in to registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
     - name: Push image
