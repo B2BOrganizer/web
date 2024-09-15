@@ -13,9 +13,15 @@ import {
     SimpleForm,
     TextField,
     TextInput,
-    TopToolbar
+    TopToolbar,
+    useGetOne,
+    SaveButton,
+    Toolbar,
+    DeleteButton,
 } from 'react-admin';
-import * as React from "react";
+import moment from 'moment';
+import { useLocation } from 'react-router-dom';
+import {useState} from "react";
 
 const ListActions = () => (
     <TopToolbar>
@@ -29,6 +35,13 @@ const postFilters = [
     <NumberInput name="assignedToMonth" label="Month" source="assignedToMonth" />,
 ];
 
+const CreateToolbar = () => {
+    return (
+        <Toolbar>
+            <SaveButton alwaysEnable />
+        </Toolbar>
+    )
+}
 
 export const CreateMailMonthlyReport = () => {
     const transform = data => ({
@@ -36,30 +49,36 @@ export const CreateMailMonthlyReport = () => {
        templateCode: 'MONTHLY_DOCUMENTS_REPORT'
     });
 
+    const { predefinedMailMonthlyReportId } = useLocation().state || undefined;
+
+    const { data: predefinedMailMonthlyReport } = useGetOne('predefined-mail-monthly-reports', { id: predefinedMailMonthlyReportId }, { enabled: !!predefinedMailMonthlyReportId } );
+
     return (
         <Create transform={transform}>
-            <SimpleForm>
-                <TextInput name="sendTo" source="sendTo" type="email" validate={[required()]} />
-                <TextInput name="copyTo" source="copyTo" type="email" />
-                <TextInput name="subject" source="subject" validate={[required()]} />
-                <NumberInput name="month" source="month" validate={[required()]} />
-                <NumberInput name="year" source="year" validate={[required()]} />
+            <SimpleForm toolbar={<CreateToolbar />}>
+                <TextInput name="sendTo" source="sendTo" type="email" validate={[required()]} defaultValue={predefinedMailMonthlyReport?.sendTo} />
+                <TextInput name="copyTo" source="copyTo" type="email" defaultValue={predefinedMailMonthlyReport?.copyTo} />
+                <TextInput name="subject" source="subject" validate={[required()]} defaultValue={predefinedMailMonthlyReport?.subjectParsed} />
+                <NumberInput name="month" source="month" validate={[required()]} defaultValue={moment().month() + 1}  />
+                <NumberInput name="year" source="year" validate={[required()]} defaultValue={moment().year()} />
             </SimpleForm>
         </Create>
     )
 }
 
-export const MailMonthlyReports = () => (
-    <List actions={<ListActions />} filters={postFilters} perPage={100}>
-        <Datagrid>
-            <TextField source="id" />
-            <ChipField source="status" />
-            <DateField source="created" />
-            <DateField source="sent" />
-            <EmailField source="sendTo" />
-            <TextField source="subject" />
-            <NumberField source="month" />
-            <NumberField source="year" />
-        </Datagrid>
-    </List>
-);
+export const MailMonthlyReports = () => {
+    return (
+        <List actions={<ListActions />} filters={postFilters} perPage={100}>
+            <Datagrid>
+                <TextField source="id" />
+                <ChipField source="status" />
+                <DateField source="created" />
+                <DateField source="sent" />
+                <EmailField source="sendTo" />
+                <TextField source="subject" />
+                <NumberField source="month" />
+                <NumberField source="year" />
+            </Datagrid>
+        </List>
+    )
+}
