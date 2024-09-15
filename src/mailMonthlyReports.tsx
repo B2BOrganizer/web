@@ -59,8 +59,8 @@ export const CreateMailMonthlyReport = () => {
                 <TextInput name="sendTo" source="sendTo" type="email" validate={[required()]} defaultValue={predefinedMailMonthlyReport?.sendTo} />
                 <TextInput name="copyTo" source="copyTo" type="email" defaultValue={predefinedMailMonthlyReport?.copyTo} />
                 <TextInput name="subject" source="subject" validate={[required()]} defaultValue={predefinedMailMonthlyReport?.subjectParsed} />
-                <NumberInput name="month" source="month" validate={[required()]} defaultValue={moment().month() + 1}  />
-                <NumberInput name="year" source="year" validate={[required()]} defaultValue={moment().year()} />
+                <NumberInput name="month" source="month" validate={[required()]} defaultValue={moment().subtract(1, 'months').month() + 1}  />
+                <NumberInput name="year" source="year" validate={[required()]} defaultValue={moment().subtract(1, 'months').year()} />
             </SimpleForm>
         </Create>
     )
