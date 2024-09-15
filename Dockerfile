@@ -1,5 +1,5 @@
 # pull official base image
-FROM node:14-alpine
+FROM node:22-alpine
 
 RUN apk add --update --no-cache python3
 RUN apk add --update --no-cache build-base
