@@ -13,6 +13,7 @@ import {
     NumberField,
     NumberInput,
     Pagination,
+    PrevNextButtons,
     ReferenceArrayInput,
     ReferenceField,
     ReferenceInput, ReferenceManyField,
@@ -20,7 +21,7 @@ import {
     SimpleForm, SimpleShowLayout,
     TextField,
     TextInput,
-    TopToolbar,
+    TopToolbar, useEditContext,
     useFieldValue,
     useRecordContext, useShowContext
 } from 'react-admin';
@@ -31,6 +32,7 @@ import {PreviewField} from "./PreviewField";
 
 const ManagedDocumentShowActions = () => (
     <TopToolbar>
+        <PrevNextButtons />
         <ListButton />
     </TopToolbar>
 );
@@ -75,6 +77,39 @@ export const ManagedDocumentShow = () => {
     )
 }
 
+const ManagedDocumentEditForm = () => {
+    const { record } = useEditContext();
+
+    const [previewOpen, setPreviewOpen] = React.useState(false);
+
+    const slides = record.managedFilePreviews.map(item => ({
+        src: `data:image/jpeg;base64,${item.contentInBase64}`
+    }));
+
+    return (
+        <SimpleForm>
+            <TextInput name="id" disabled label="Id" source="id"  />
+            <TextInput name="fileName" disabled label="File name" source="managedFile.fileName" />
+            <ReferenceField label="Subject" reference="mail-messages" source="mailMessageId">
+                <TextInput name="subject" disabled source="subject" />
+            </ReferenceField>
+            <DateInput name="sent" disabled label="Sent" source="sent" validate={required()} />
+            <DateInput name="received" disabled label="Received" source="received" validate={required()} />
+            <NumberInput name="assignedToYear" label="Year" source="assignedToYear" validate={required()} />
+            <NumberInput name="assignedToMonth" label="Month" source="assignedToMonth" validate={required()} />
+            <TextInput name="comment" label="Comment" source="comment" />
+            <ReferenceInput source="requiredDocumentId" reference="required-documents" />
+            <Button label="Preview" type="button" onClick={() => {setPreviewOpen(true)}} />
+
+            <Lightbox
+                open={previewOpen}
+                close={() => setPreviewOpen(false)}
+                slides={slides}
+            />
+        </SimpleForm>
+    )
+}
+
 export const ManagedDocumentEdit = () => {
     const transform = data => ({
         ...data,
@@ -82,20 +117,14 @@ export const ManagedDocumentEdit = () => {
     });
 
     return (
-        <Edit transform={transform}>
-            <SimpleForm>
-                <TextInput name="id" disabled label="Id" source="id"  />
-                <TextInput name="fileName" disabled label="File name" source="managedFile.fileName" />
-                <ReferenceField label="Subject" reference="mail-messages" source="mailMessageId">
-                    <TextInput name="subject" disabled source="subject" />
-                </ReferenceField>
-                <DateInput name="sent" disabled label="Sent" source="sent" validate={required()} />
-                <DateInput name="received" disabled label="Received" source="received" validate={required()} />
-                <NumberInput name="assignedToYear" label="Year" source="assignedToYear" validate={required()} />
-                <NumberInput name="assignedToMonth" label="Month" source="assignedToMonth" validate={required()} />
-                <TextInput name="comment" label="Comment" source="comment" />
-                <ReferenceInput source="requiredDocumentId" reference="required-documents" />
-            </SimpleForm>
+        <Edit transform={transform} actions={
+            <TopToolbar>
+                <PrevNextButtons />
+                <ShowButton />
+                <ListButton />
+            </TopToolbar>
+        }>
+            <ManagedDocumentEditForm />
         </Edit>
     )
 }
