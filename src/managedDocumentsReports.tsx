@@ -21,12 +21,15 @@ import {
     Show,
     SimpleShowLayout,
     ReferenceManyField,
-    SingleFieldList, Pagination, BooleanField, DeleteWithConfirmButton, ShowButton, ListButton,
+    SingleFieldList, Pagination, BooleanField, DeleteWithConfirmButton, ShowButton, ListButton, useFieldValue, Button,
 } from 'react-admin';
 import moment from 'moment';
 import { useLocation } from 'react-router-dom';
 import {useState} from "react";
 import * as React from "react";
+import Lightbox from "yet-another-react-lightbox";
+import {PreviewField} from "./PreviewField";
+import "yet-another-react-lightbox/styles.css";
 
 // const ListActions = () => (
 //     <TopToolbar>
@@ -57,26 +60,45 @@ const ManagedDocumentsReportShowActions = () => (
 export const ManagedDocumentsReportShow = () => {
     const ManagedDocumentsReportItemsPagination = () => <Pagination rowsPerPageOptions={[25, 50, 100]} />;
 
+    const [previewOpen, setPreviewOpen] = React.useState(false);
+    const [slides, setSlides] = React.useState([]);
+
+    const handlePreview = (previews) => {
+        const newSlides = previews.map(item => ({
+            src: `data:image/jpeg;base64,${item.contentInBase64}`
+        }));
+        setSlides(newSlides);
+        setPreviewOpen(true);
+    };
+
     return (
-        <Show actions={<ManagedDocumentsReportShowActions />}>
-            <SimpleShowLayout>
-                <TextField source="id" />
-                <SelectField source="interval" choices={[
-                    { id: 'MONTHLY', name: 'Monthly' },
-                ]} />
-                <NumberField source="month" />
-                <NumberField source="year" />
-                <ReferenceManyField label="Documents" reference="managed-documents-report-items" target="managedDocumentsReportId" pagination={<ManagedDocumentsReportItemsPagination />}>
-                    <Datagrid>
-                        <TextField source="id" />
-                        <TextField source="requiredDocumentName" />
-                        <BooleanField source="requiredDocumentFound" />
-                        <DateField source="managedDocumentReceived" />
-                        <TextField source="managedDocumentFileName" />
-                    </Datagrid>
-                </ReferenceManyField>
-            </SimpleShowLayout>
-        </Show>
+        <>
+            <Show actions={<ManagedDocumentsReportShowActions />}>
+                <SimpleShowLayout>
+                    <TextField source="id" />
+                    <SelectField source="interval" choices={[
+                        { id: 'MONTHLY', name: 'Monthly' },
+                    ]} />
+                    <NumberField source="month" />
+                    <NumberField source="year" />
+                    <ReferenceManyField label="Documents" reference="managed-documents-report-items" target="managedDocumentsReportId" pagination={<ManagedDocumentsReportItemsPagination />}>
+                        <Datagrid>
+                            <TextField source="id" />
+                            <TextField source="requiredDocumentName" />
+                            <BooleanField source="requiredDocumentFound" />
+                            <DateField source="managedDocumentReceived" />
+                            <TextField source="managedDocumentFileName" />
+                            <PreviewField source="managedDocumentPreviews" onPreview={handlePreview} />
+                        </Datagrid>
+                    </ReferenceManyField>
+                </SimpleShowLayout>
+            </Show>
+            <Lightbox
+                open={previewOpen}
+                close={() => setPreviewOpen(false)}
+                slides={slides}
+            />
+        </>
     )
 }
 

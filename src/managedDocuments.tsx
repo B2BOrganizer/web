@@ -7,20 +7,73 @@ import {
     DeleteWithConfirmButton,
     Edit,
     EditButton,
+    FieldProps,
     FilterButton,
-    List,
+    List, ListButton,
     NumberField,
     NumberInput,
     Pagination,
     ReferenceArrayInput,
     ReferenceField,
-    ReferenceInput,
-    required,
-    SimpleForm,
+    ReferenceInput, ReferenceManyField,
+    required, SelectField, Show, ShowButton,
+    SimpleForm, SimpleShowLayout,
     TextField,
     TextInput,
-    TopToolbar
+    TopToolbar,
+    useFieldValue,
+    useRecordContext, useShowContext
 } from 'react-admin';
+import * as React from "react";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+import {PreviewField} from "./PreviewField";
+
+const ManagedDocumentShowActions = () => (
+    <TopToolbar>
+        <ListButton />
+    </TopToolbar>
+);
+
+const ManagedDocumentShowLayout = () => {
+    const [previewOpen, setPreviewOpen] = React.useState(false);
+
+    const { record } = useShowContext();
+
+    const slides = record.managedFilePreviews.map(item => ({
+        src: `data:image/jpeg;base64,${item.contentInBase64}`
+    }));
+
+    return (
+        <SimpleShowLayout>
+            <TextField source="id" />
+            <TextField source="fileName" />
+            <TextField source="subject" />
+            <DateField source="sent" />
+            <DateField source="received" />
+            <NumberField source="assignedToYear" />
+            <NumberField source="assignedToMonth" />
+            <TextField source="comment" />
+            <ReferenceField source="requiredDocumentId" reference="required-documents" />
+            <Button type="button" onClick={() => {setPreviewOpen(true)}}>Preview</Button>
+
+            <Lightbox
+                open={previewOpen}
+                close={() => setPreviewOpen(false)}
+                slides={slides}
+            />
+        </SimpleShowLayout>
+    )
+}
+
+export const ManagedDocumentShow = () => {
+
+    return (
+        <Show actions={<ManagedDocumentShowActions />}>
+            <ManagedDocumentShowLayout />
+        </Show>
+    )
+}
 
 export const ManagedDocumentEdit = () => {
     const transform = data => ({
@@ -61,23 +114,46 @@ const postFilters = [
 
 const ManagedDocumentsPagination = () => <Pagination rowsPerPageOptions={[25, 50, 100]} />;
 
-export const ManagedDocumentsList = () => (
-    <List actions={<ListActions />} filters={postFilters}  pagination={<ManagedDocumentsPagination />} perPage={100}>
-        <Datagrid>
-            <TextField source="managedFile.fileName" label="File name" />
-            <ReferenceField label="Subject" reference="mail-messages" source="mailMessageId">
-                <TextField source="subject" />
-            </ReferenceField>
-            <DateField source="sent" />
-            <DateField source="received" />
-            <NumberField label="Year" source="assignedToYear" />
-            <NumberField label="Month" source="assignedToMonth" />
-            <BooleanField source="commented" />
-            <ReferenceField source="requiredDocumentId" reference="required-documents" />
-            <>
-                <EditButton />
-                <DeleteWithConfirmButton  />
-            </>
-        </Datagrid>
-    </List>
-);
+export const ManagedDocumentsList = () => {
+    const [previewOpen, setPreviewOpen] = React.useState(false);
+    const [slides, setSlides] = React.useState([]);
+
+    const handlePreview = (previews) => {
+        const newSlides = previews.map(item => ({
+            src: `data:image/jpeg;base64,${item.contentInBase64}`
+        }));
+        setSlides(newSlides);
+        setPreviewOpen(true);
+    };
+
+    return (
+        <>
+                <List actions={<ListActions />} filters={postFilters}  pagination={<ManagedDocumentsPagination />} perPage={100}>
+                    <Datagrid>
+                        <TextField source="managedFile.fileName" label="File name" />
+                        <ReferenceField label="Subject" reference="mail-messages" source="mailMessageId">
+                            <TextField source="subject" />
+                        </ReferenceField>
+                        <DateField source="received" />
+                        <NumberField label="Year" source="assignedToYear" />
+                        <NumberField label="Month" source="assignedToMonth" />
+                        <BooleanField source="commented" />
+                        <ReferenceField label="Required" source="requiredDocumentId" reference="required-documents" />
+                        <PreviewField source="managedFilePreviews" onPreview={handlePreview} />
+                        <>
+                            <ShowButton />
+                            <EditButton />
+                            <DeleteWithConfirmButton  />
+                        </>
+                    </Datagrid>
+                </List>
+
+                <Lightbox
+                    open={previewOpen}
+                    close={() => setPreviewOpen(false)}
+                    slides={slides}
+                />
+        </>
+
+    )
+}
