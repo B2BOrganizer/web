@@ -31,8 +31,8 @@ const ListActions = () => (
 );
 
 const postFilters = [
-    <NumberInput name="assignedToYear" label="Year" source="assignedToYear" />,
-    <NumberInput name="assignedToMonth" label="Month" source="assignedToMonth" />,
+    <NumberInput label="Year" source="year" />,
+    <NumberInput label="Month" source="month" />,
 ];
 
 const CreateToolbar = () => {
