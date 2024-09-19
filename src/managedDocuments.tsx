@@ -24,7 +24,7 @@ import {
     SimpleShowLayout,
     TextField,
     TextInput,
-    TopToolbar,
+    TopToolbar, useDataProvider,
     useEditContext,
     useShowContext
 } from 'react-admin';
@@ -44,6 +44,8 @@ const ManagedDocumentShowLayout = () => {
     const [previewOpen, setPreviewOpen] = React.useState(false);
 
     const { record } = useShowContext();
+
+    const dataProvider = useDataProvider();
 
     const slides = record.managedFilePreviews?.map(item => ({
         src: `data:image/jpeg;base64,${item.contentInBase64}`
@@ -147,44 +149,28 @@ const postFilters = [
 const ManagedDocumentsPagination = () => <Pagination rowsPerPageOptions={[25, 50, 100]} />;
 
 export const ManagedDocumentsList = () => {
-    const [previewOpen, setPreviewOpen] = React.useState(false);
-    const [slides, setSlides] = React.useState([]);
-
-    const handlePreview = (previews) => {
-        const newSlides = previews.map(item => ({
-            src: `data:image/jpeg;base64,${item.contentInBase64}`
-        }));
-        setSlides(newSlides);
-        setPreviewOpen(true);
-    };
-
     return (
         <>
-                <List actions={<ListActions />} filters={postFilters}  pagination={<ManagedDocumentsPagination />} perPage={100}>
-                    <Datagrid>
-                        <TextField source="managedFile.fileName" label="File name" />
-                        <ReferenceField label="Subject" reference="mail-messages" source="mailMessageId">
-                            <TextField source="subject" />
-                        </ReferenceField>
-                        <DateField source="received" />
-                        <NumberField label="Year" source="assignedToYear" />
-                        <NumberField label="Month" source="assignedToMonth" />
-                        <BooleanField source="commented" />
-                        <ReferenceField label="Required" source="requiredDocumentId" reference="required-documents" />
-                        <PreviewField source="managedFilePreviews" onPreview={handlePreview} />
-                        <>
-                            <ShowButton />
-                            <EditButton />
-                            <DeleteWithConfirmButton  />
-                        </>
-                    </Datagrid>
-                </List>
+            <List actions={<ListActions />} filters={postFilters}  pagination={<ManagedDocumentsPagination />} perPage={100}>
+                <Datagrid>
+                    <TextField source="managedFile.fileName" label="File name" />
+                    <ReferenceField label="Subject" reference="mail-messages" source="mailMessageId">
+                        <TextField source="subject" />
+                    </ReferenceField>
+                    <DateField source="received" />
+                    <NumberField label="Year" source="assignedToYear" />
+                    <NumberField label="Month" source="assignedToMonth" />
+                    <BooleanField source="commented" />
+                    <ReferenceField label="Required" source="requiredDocumentId" reference="required-documents" />
+                    <PreviewField source="managedFilePreviews" onPreview={handlePreview} />
+                    <>
+                        <ShowButton />
+                        <EditButton />
+                        <DeleteWithConfirmButton  />
+                    </>
+                </Datagrid>
+            </List>
 
-                <Lightbox
-                    open={previewOpen}
-                    close={() => setPreviewOpen(false)}
-                    slides={slides}
-                />
         </>
 
     )
