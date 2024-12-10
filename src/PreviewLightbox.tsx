@@ -1,54 +1,39 @@
-import * as React from "react";
+import {Button} from "react-admin";
 import Lightbox from "yet-another-react-lightbox";
+import React from "react";
+import {useFetchPreviews} from "./useFetchPreviews";
 
-// interface Slide {
-//     src: string;
-// }
-//
-// interface PreviewLightboxProps {
-//     previewOpen: boolean;
-//     setPreviewOpen: (open: boolean) => void;
-//     slides: Slide[];
-// }
-//
-// export const PreviewLightbox: React.FC<PreviewLightboxProps> = ({ previewOpen, setPreviewOpen, slides }) => {
-//     return (
-//         <Lightbox
-//             open={previewOpen}
-//             close={() => setPreviewOpen(false)}
-//             slides={slides}
-//             carousel={{
-//                 finite: true
-//             }}
-//         />
-//     );
-// };
-
-interface Slide {
-    src: string;
+interface PreviewLightboxProps {
+    id: string | number;
 }
 
-export const PreviewLightbox: React.FC = () => {
+const PreviewLightbox: React.FC<PreviewLightboxProps> = ({ id }) => {
     const [previewOpen, setPreviewOpen] = React.useState(false);
-    const [slides, setSlides] = React.useState<Slide[]>([]);
+    const [slides, setSlides] = React.useState<{ src: string }[]>([]);
+    const fetchSlides = useFetchPreviews();
 
-    const handlePreview = (previews: any[]) => {
-        const newSlides = previews.map(item => ({
-            src: `data:${item}`
-            // src: `data:image/jpeg;base64,${item.contentInBase64}`
-        }));
-        setSlides(newSlides);
-        setPreviewOpen(true);
+    const handlePreviewClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.stopPropagation();
+        try {
+            const newSlides = await fetchSlides(id);
+            setSlides(newSlides);
+            setPreviewOpen(true);
+        } catch (error) {
+            console.error("Error fetching slides:", error);
+        }
     };
 
     return (
-        <Lightbox
-            open={previewOpen}
-            close={() => setPreviewOpen(false)}
-            slides={slides}
-            carousel={{
-                finite: true
-            }}
-        />
+        <>
+            <Button type="button" onClick={handlePreviewClick}>Preview</Button>
+            <Lightbox
+                open={previewOpen}
+                close={() => setPreviewOpen(false)}
+                slides={slides}
+                carousel={{ finite: true }}
+            />
+        </>
     );
 };
+
+export default PreviewLightbox;

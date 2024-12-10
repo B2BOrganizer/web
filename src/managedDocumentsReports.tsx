@@ -1,55 +1,29 @@
 import {
-    ChipField,
     Create,
-    CreateButton,
     Datagrid,
     DateField,
-    EmailField,
-    FilterButton,
     List,
     NumberField,
     NumberInput,
     required,
     SimpleForm,
     TextField,
-    TextInput,
     TopToolbar,
-    useGetOne,
-    SaveButton,
-    Toolbar,
-    DeleteButton, SelectField, SelectInput,
+    SelectField,
+    SelectInput,
     Show,
     SimpleShowLayout,
     ReferenceManyField,
-    SingleFieldList, Pagination, BooleanField, DeleteWithConfirmButton, ShowButton, ListButton, useFieldValue, Button,
+    Pagination,
+    BooleanField,
+    DeleteWithConfirmButton,
+    ListButton
 } from 'react-admin';
 import moment from 'moment';
-import { useLocation } from 'react-router-dom';
-import {useState} from "react";
 import * as React from "react";
 import Lightbox from "yet-another-react-lightbox";
-import {PreviewField} from "./PreviewField";
 import "yet-another-react-lightbox/styles.css";
-
-// const ListActions = () => (
-//     <TopToolbar>
-//         <FilterButton />
-//         <CreateButton />
-//     </TopToolbar>
-// );
-
-// const postFilters = [
-//     <NumberInput name="assignedToYear" label="Year" source="assignedToYear" />,
-//     <NumberInput name="assignedToMonth" label="Month" source="assignedToMonth" />,
-// ];
-
-// const CreateToolbar = () => {
-//     return (
-//         <Toolbar>
-//             <SaveButton alwaysEnable />
-//         </Toolbar>
-//     )
-// }
+import PreviewButton from "./PreviewButton";
 
 const ManagedDocumentsReportShowActions = () => (
     <TopToolbar>
@@ -61,15 +35,15 @@ export const ManagedDocumentsReportShow = () => {
     const ManagedDocumentsReportItemsPagination = () => <Pagination rowsPerPageOptions={[25, 50, 100]} />;
 
     const [previewOpen, setPreviewOpen] = React.useState(false);
-    const [slides, setSlides] = React.useState([]);
+    const [slides, setSlides] = React.useState<{ src: string }[]>([]);
 
-    const handlePreview = (previews) => {
+    const handlePreview = (previews: any[]) => {
         const newSlides = previews.map(item => ({
-            src: `data:image/jpeg;base64,${item.contentInBase64}`
+            src: `data:${item}`
         }));
         setSlides(newSlides);
         setPreviewOpen(true);
-    };
+    }
 
     return (
         <>
@@ -88,7 +62,9 @@ export const ManagedDocumentsReportShow = () => {
                             <BooleanField source="requiredDocumentFound" />
                             <DateField source="managedDocumentReceived" />
                             <TextField source="managedDocumentFileName" />
-                            <PreviewField source="managedDocumentPreviews" onPreview={handlePreview} />
+                            <>
+                                <PreviewButton source="managedDocumentPreviews" onPreview={handlePreview} managedDocumentRecordIdentifier="managedDocumentId" />
+                            </>
                         </Datagrid>
                     </ReferenceManyField>
                 </SimpleShowLayout>
@@ -97,6 +73,9 @@ export const ManagedDocumentsReportShow = () => {
                 open={previewOpen}
                 close={() => setPreviewOpen(false)}
                 slides={slides}
+                carousel={{
+                    finite: true
+                }}
             />
         </>
     )
